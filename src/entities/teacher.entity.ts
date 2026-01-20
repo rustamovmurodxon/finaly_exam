@@ -5,12 +5,14 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { Lesson } from './lesson.entity';
 import { DeletedTeacher } from './deleted-teacher.entity';
 import { TeacherPayment } from './teacher-payment.entity';
 import { UserRole } from './admin.entity';
-
+import * as bcrypt from 'bcrypt'
 @Entity('teachers')
 export class Teacher {
   @PrimaryGeneratedColumn('uuid')
@@ -27,6 +29,18 @@ export class Teacher {
 
   @Column({ nullable: true })
   password: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPasswordIfNeeded() {
+    if (!this.password) return;
+
+    if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$') || this.password.startsWith('$2y$')) {
+      return;
+    }
+
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 
   @Column({ nullable: true })
   cardNumber: string;

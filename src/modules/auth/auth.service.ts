@@ -440,21 +440,4 @@ export class AuthService {
 
     return null;
   }
-  async hashAllTeacherPasswords() {
-    const teachers = await this.teacherRepository.find();
-    let updated = 0;
-
-    for (const teacher of teachers) {
-      if (teacher.password && !teacher.password.startsWith('$2b$')) {
-        teacher.password = await bcrypt.hash(teacher.password, 10);
-        await this.teacherRepository.save(teacher);
-        updated++;
-      }
-    }
-
-    // console.log(`Muvaffaqiyat! ${updated} ta teacher paroli hash qilindi.`);
-  }
-  async onModuleInit() {
-    await this.hashAllTeacherPasswords();
-  }
 }
